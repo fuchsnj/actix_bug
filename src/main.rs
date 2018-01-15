@@ -4,9 +4,7 @@ use actix::{msgs, Actor, Address, Arbiter, Context, System, Handler, ResponseTyp
 use actix::fut::wrap_future;
 use actix::fut;
 
-struct MyActor{
-	sync_address: Option<SyncAddress<MyActor>>
-}
+struct MyActor;
 
 impl Actor for MyActor {
 	type Context = Context<Self>;
@@ -16,8 +14,8 @@ impl Actor for MyActor {
 		ctx.spawn(wrap_future(addr.upgrade()).and_then(move |sync_address, actor: &mut MyActor, ctx: &mut Context<MyActor>| {
 			sync_address.send(Message);
 
-			//uncommenting the next line fixes the issue (prevents sync_address from being dropped)
-			//actor.sync_address = Some(sync_address.clone());
+			//uncommenting the next line "fixes" the issue (prevents sync_address from being dropped)
+			//std::mem::forget(sync_address);
 
 			ctx.spawn(wrap_future(addr.upgrade()).and_then(move |sync_address, _, ctx| {
 				sync_address.send(Message);
@@ -48,9 +46,7 @@ impl Handler<Message> for MyActor {
 fn main() {
 	let system = System::new("test");
 
-	let addr: Address<_> = MyActor{
-		sync_address: None
-	}.start();
+	let addr: Address<_> = MyActor.start();
 
 	system.run();
 }
