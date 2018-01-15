@@ -1,0 +1,8 @@
+[package]
+name = "actix_bug"
+version = "0.1.0"
+authors = ["Nathan Fox <fuchsnj@gmail.com>"]
+
+[dependencies]
+actix = "0.4"
+futures = "0.1"
